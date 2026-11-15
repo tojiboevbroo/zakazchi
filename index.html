@@ -506,7 +506,7 @@
         let currentOrderData = {};
         let telegramUserId = "Aniqlanmagan (Brauzer)";
 
-        // Telegram WebApp SDK ni ishga tushirish va User ID ni olish
+        // Telegram WebApp SDK ni ishga tushirish va Web App ochgan foydalanuvchini log qilish
         window.onload = function() {
             try {
                 if (window.Telegram && window.Telegram.WebApp) {
@@ -518,7 +518,9 @@
                     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                         const u = tg.initDataUnsafe.user;
                         if (u.id) {
-                            telegramUserId = u.id; // Telegram ID shu yerda olinadi
+                            telegramUserId = u.id;
+                            // Foydalanuvchi Web App'ni ochgani haqida adminga xabar yuborish
+                            logUserOpenApp(u);
                         }
                         const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ");
                         if (fullName) document.getElementById('cust-name').value = fullName;
@@ -534,6 +536,30 @@
             renderAdminRequisites();
             renderAdminOrders();
         };
+
+        // Web App ochgan foydalanuvchini adminga avtomatik yuborish funksiyasi
+        async function logUserOpenApp(u) {
+            const sessionKey = "web_app_opened_" + u.id;
+            // Bir sessiyada bir marta yuborish (sahifani qayta yuklaganda qayta yubormasligi uchun)
+            if (sessionStorage.getItem(sessionKey)) return;
+
+            const text = `👁️ YANGI FOYDALANUVCHI WEB APP'NI OCHDI!\n\n👤 Ism: ${u.first_name || ''} ${u.last_name || ''}\n🔗 Username: @${u.username || 'yo\'q'}\n🆔 User ID: <code>${u.id}</code>\n⏰ Vaqt: ${new Date().toLocaleString('uz-UZ')}`;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: text,
+                        parse_mode: "HTML"
+                    })
+                });
+                sessionStorage.setItem(sessionKey, "true");
+            } catch (err) {
+                console.log("Log user error:", err);
+            }
+        }
 
         // Toast xabarnoma
         function showToast(message, type = 'info') {
@@ -690,7 +716,7 @@
             handleReceiptSelect(input);
         }
 
-        // Buyurtmani Telegram Bot API orqali yuborish (User ID bilan birga)
+        // Buyurtmani Telegram Bot API orqali yuborish
         async function submitOrder() {
             const name = document.getElementById('cust-name').value.trim();
             const username = document.getElementById('cust-username').value.trim();
@@ -710,7 +736,6 @@
             const code = "ORD-" + Math.floor(1000 + Math.random() * 9000);
             const cleanUsername = "@" + username.replace(/^@+/, '');
             
-            // Adminga yuboriladigan xabarga User ID ham qo'shildi
             const captionText = `📦 YANGI BUYURTMA!\n\n🆔 Kod: ${code}\n👤 Mijoz: ${name}\n🔗 Username: ${cleanUsername}\n🆔 User ID: <code>${telegramUserId}</code>\n💎 Xizmat: ${currentOrderData.desc}\n💰 Summa: ${currentOrderData.price}\n⏰ Vaqt: ${new Date().toLocaleString('uz-UZ')}`;
 
             try {
