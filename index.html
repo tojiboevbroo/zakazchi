@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Premium & Stars — Liquid Glass</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.14);
+            --glass-card-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.28);
+            --glass-highlight-top: rgba(255, 255, 255, 0.58);
+            --glass-highlight-bottom: rgba(0, 0, 0, 0.28);
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #241f1b;
+            background-image: 
+                radial-gradient(ellipse at 18% 12%, rgba(168, 152, 138, 0.52) 0%, transparent 52%),
+                radial-gradient(ellipse at 85% 24%, rgba(110, 98, 87, 0.65) 0%, transparent 56%),
+                radial-gradient(ellipse at 45% 58%, rgba(140, 127, 115, 0.45) 0%, transparent 60%),
+                radial-gradient(ellipse at 82% 88%, rgba(61, 53, 46, 0.85) 0%, transparent 55%),
+                linear-gradient(145deg, #3d352e 0%, #6e6257 38%, #241f1b 74%, #8c7f73 100%);
+            background-attachment: fixed;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+        }
+        /* Ipaksimon organik yorug'lik to'lqinlari */
+        .silk-wave-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .silk-ribbon-1 {
+            position: absolute;
+            top: -15%;
+            left: -20%;
+            width: 140%;
+            height: 65%;
+            background: linear-gradient(125deg, rgba(255, 248, 240, 0.24) 0%, rgba(165, 150, 136, 0.08) 45%, rgba(255, 255, 255, 0.18) 100%);
+            border-radius: 48% 52% 65% 35% / 40% 60% 40% 60%;
+            filter: blur(28px);
+            transform: rotate(-12deg);
+        }
+        .silk-ribbon-2 {
+            position: absolute;
+            top: 32%;
+            right: -25%;
+            width: 135%;
+            height: 55%;
+            background: linear-gradient(210deg, rgba(235, 224, 213, 0.22) 0%, rgba(45, 38, 33, 0.45) 55%, rgba(210, 196, 182, 0.2) 100%);
+            border-radius: 60% 40% 35% 65% / 55% 45% 55% 45%;
+            filter: blur(24px);
+            transform: rotate(16deg);
+        }
+        .silk-ribbon-3 {
+            position: absolute;
+            bottom: -18%;
+            left: -15%;
+            width: 130%;
+            height: 50%;
+            background: radial-gradient(circle at 40% 40%, rgba(225, 212, 198, 0.25), rgba(36, 31, 27, 0.6) 70%);
+            border-radius: 50%;
+            filter: blur(32px);
+        }
+        /* iOS Liquid Glass Vidjet Effekti */
+        .liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(145%);
+            -webkit-backdrop-filter: blur(24px) saturate(145%);
+            border-radius: 26px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                inset 0 1.5px 1.5px var(--glass-highlight-top),
+                inset 0 -1.5px 2px var(--glass-highlight-bottom),
+                inset 1px 0 1.5px rgba(255, 255, 255, 0.28),
+                0 14px 34px rgba(15, 12, 10, 0.34);
+            position: relative;
+        }
+        .liquid-glass-card {
+            background: var(--glass-card-bg);
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            box-shadow: 
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.52),
+                inset 0 -1.5px 2px rgba(0, 0, 0, 0.24),
+                0 10px 26px rgba(15, 12, 10, 0.28);
+            transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background 0.18s ease, box-shadow 0.18s ease;
+        }
+        .liquid-glass-card:hover {
+            background: rgba(255, 255, 255, 0.17);
+            box-shadow: 
+                inset 0 1.5px 2px rgba(255, 255, 255, 0.65),
+                inset 0 -1.5px 2px rgba(0, 0, 0, 0.25),
+                0 14px 30px rgba(15, 12, 10, 0.35);
+        }
+        .liquid-glass-card:active {
+            transform: scale(0.985);
+        }
+        .liquid-glass-header {
+            background: rgba(48, 41, 36, 0.42);
+            backdrop-filter: blur(26px) saturate(150%);
+            -webkit-backdrop-filter: blur(26px) saturate(150%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+            box-shadow: 
+                inset 0 -1px 1px rgba(255, 255, 255, 0.18),
+                0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        .liquid-pill {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            box-shadow: 
+                inset 0 1px 1px rgba(255, 255, 255, 0.55),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.22);
+            transition: all 0.16s ease;
+        }
+        .liquid-pill:hover {
+            background: rgba(255, 255, 255, 0.26);
+        }
+        .liquid-pill:active {
+            transform: scale(0.96);
+        }
+        .liquid-btn-primary {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.16) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.72),
+                inset 0 -1.5px 2px rgba(0, 0, 0, 0.25),
+                0 6px 18px rgba(0, 0, 0, 0.24);
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.18s ease;
+        }
+        .liquid-btn-primary:hover {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.44) 0%, rgba(255, 255, 255, 0.22) 100%);
+            box-shadow: 
+                inset 0 1.5px 2px rgba(255, 255, 255, 0.85),
+                inset 0 -1.5px 2px rgba(0, 0, 0, 0.25),
+                0 8px 22px rgba(0, 0, 0, 0.3);
+        }
+        .liquid-btn-primary:active {
+            transform: scale(0.98);
+        }
+        .liquid-btn-emerald {
+            background: linear-gradient(180deg, rgba(52, 211, 153, 0.55) 0%, rgba(16, 185, 129, 0.38) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(167, 243, 208, 0.55);
+            box-shadow: 
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.65),
+                inset 0 -1.5px 2px rgba(6, 78, 59, 0.35),
+                0 8px 22px rgba(6, 78, 59, 0.35);
+            color: #ffffff;
+            transition: all 0.18s ease;
+        }
+        .liquid-btn-emerald:hover {
+            background: linear-gradient(180deg, rgba(52, 211, 153, 0.68) 0%, rgba(16, 185, 129, 0.48) 100%);
+        }
+        .liquid-input {
+            background: rgba(24, 20, 17, 0.34);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            box-shadow: 
+                inset 0 1.5px 3px rgba(0, 0, 0, 0.32),
+                0 1px 0 rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            transition: all 0.18s ease;
+        }
+        .liquid-input::placeholder {
+            color: rgba(255, 255, 255, 0.48);
+        }
+        .liquid-input:focus {
+            outline: none;
+            background: rgba(24, 20, 17, 0.46);
+            border-color: rgba(255, 255, 255, 0.58);
+            box-shadow: 
+                inset 0 1.5px 3px rgba(0, 0, 0, 0.35),
+                0 0 0 3px rgba(255, 255, 255, 0.12);
+        }
+        .liquid-modal {
+            background: rgba(54, 47, 41, 0.68);
+            backdrop-filter: blur(32px) saturate(160%);
+            -webkit-backdrop-filter: blur(32px) saturate(160%);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            box-shadow: 
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.6),
+                inset 0 -1.5px 2px rgba(0, 0, 0, 0.35),
+                0 24px 50px rgba(0, 0, 0, 0.55);
+        }
+        .text-soft-white { color: rgba(255, 255, 255, 0.82); }
+        .text-muted-white { color: rgba(255, 255, 255, 0.62); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.28); border-radius: 9999px; }
+    </style>
+</head>
+<body class="antialiased pb-16 selection:bg-white/30 selection:text-white">
+    <!-- Orqa fondagi suyuq ipaksimon yorug'lik to'lqinlari -->
+    <div class="silk-wave-container" aria-hidden="true">
+        <div class="silk-ribbon-1"></div>
+        <div class="silk-ribbon-2"></div>
+        <div class="silk-ribbon-3"></div>
+    </div>
+
+    <!-- Bildirishnoma (Toast Notification) -->
+    <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-[100] w-full max-w-xs px-4 pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- Yuqori navigatsiya paneli -->
+    <header class="sticky top-0 z-40 liquid-glass-header px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-2xl liquid-pill flex items-center justify-center">
+                <span class="text-white font-bold text-base drop-shadow">⭐</span>
+            </div>
+            <div>
+                <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight">Premium & Stars</h1>
+                <p class="text-[10px] font-medium text-emerald-300 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]"></span> Bot ulangan (Jonli)
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-1 bg-black/25 p-1 rounded-2xl border border-white/15 backdrop-blur-md">
+            <button onclick="switchTab('user')" id="nav-user" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/25 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all">Mijoz</button>
+            <button onclick="switchTab('admin')" id="nav-admin" class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-white/70 hover:text-white transition-all">Admin</button>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-md mx-auto px-4 mt-5">
+        <!-- ================= MIJOZ (USER) QISMI ================= -->
+        <div id="view-user" class="space-y-6">
+            
+            <!-- Telegram Stars Kalkulyatori -->
+            <div class="liquid-glass p-5 overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <h2 class="text-base font-bold text-white flex items-center gap-1.5">
+                        <span>⭐</span> Telegram Stars
+                    </h2>
+                    <span class="text-[11px] text-white font-semibold liquid-pill px-2.5 py-1 rounded-full">1 Star = 240 so'm</span>
+                </div>
+                <p class="text-xs text-muted-white mb-4">Kerakli yulduzchalar sonini kiriting (Minimal: 50 ta)</p>
+                
+                <!-- Tezkor tanlash tugmalari -->
+                <div class="grid grid-cols-4 gap-2 mb-3.5">
+                    <button type="button" onclick="setStarsPreset(50)" class="py-2 rounded-2xl liquid-pill text-xs font-semibold text-white">50 ⭐</button>
+                    <button type="button" onclick="setStarsPreset(100)" class="py-2 rounded-2xl liquid-pill text-xs font-semibold text-white">100 ⭐</button>
+                    <button type="button" onclick="setStarsPreset(250)" class="py-2 rounded-2xl liquid-pill text-xs font-semibold text-white">250 ⭐</button>
+                    <button type="button" onclick="setStarsPreset(500)" class="py-2 rounded-2xl liquid-pill text-xs font-semibold text-white">500 ⭐</button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-soft-white mb-1.5">Stars miqdori:</label>
+                        <input type="number" id="calc-stars" min="50" value="50" oninput="calculateStars()" class="w-full liquid-input rounded-2xl px-4 py-2.5 font-bold text-sm">
+                    </div>
+                    <div class="flex justify-between items-center bg-black/25 px-4 py-3.5 rounded-2xl border border-white/15 shadow-inner">
+                        <span class="text-xs font-medium text-soft-white">To'lov summasi:</span>
+                        <span id="calc-total" class="text-base font-extrabold text-white tracking-tight">12,000 so'm</span>
+                    </div>
+                    <button onclick="openStarsOrder()" class="w-full py-3.5 liquid-btn-primary font-bold text-xs rounded-2xl tracking-wide">
+                        Stars Sotib Olish
+                    </button>
+                </div>
+            </div>
+
+            <!-- Xizmatlar Kataloki -->
+            <div class="space-y-4">
+                <h2 class="text-sm font-bold text-white px-1 flex items-center gap-1.5">
+                    <span>💎</span> Telegram Premium Tariflari
+                </h2>
+                
+                <!-- 1. Akauntga kirib -->
+                <div class="space-y-2.5">
+                    <p class="text-xs font-semibold text-soft-white px-1">📲 Akauntga kirib ❗️</p>
+                    
+                    <div class="liquid-glass-card p-4 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">1 oylik Premium</h3>
+                            <p class="text-[11px] text-muted-white">Akauntga kirish orqali ulanadi</p>
+                            <p class="text-xs font-extrabold text-white mt-1.5">50,000 so'm</p>
+                        </div>
+                        <button onclick="openCustomOrder('Telegram Premium (Akauntga kirib - 1 oy)', '50,000 so\'m')" class="px-4 py-2.5 liquid-btn-primary text-xs font-semibold rounded-2xl flex-shrink-0">Sotib olish</button>
+                    </div>
+                    <div class="liquid-glass-card p-4 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">1 yillik Premium</h3>
+                            <p class="text-[11px] text-muted-white">Akauntga kirish orqali ulanadi</p>
+                            <p class="text-xs font-extrabold text-white mt-1.5">285,000 so'm</p>
+                        </div>
+                        <button onclick="openCustomOrder('Telegram Premium (Akauntga kirib - 1 yil)', '285,000 so\'m')" class="px-4 py-2.5 liquid-btn-primary text-xs font-semibold rounded-2xl flex-shrink-0">Sotib olish</button>
+                    </div>
+                </div>
+
+                <!-- 2. Sovg'a qilish orqali -->
+                <div class="space-y-2.5 pt-2">
+                    <p class="text-xs font-semibold text-soft-white px-1">🎁 Sovg'a qilish orqali ⬜️</p>
+                    
+                    <div class="liquid-glass-card p-4 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">3 oylik Premium</h3>
+                            <p class="text-[11px] text-muted-white">Akauntga kirmasdan sovg'a (Gift)</p>
+                            <p class="text-xs font-extrabold text-white mt-1.5">185,000 so'm</p>
+                        </div>
+                        <button onclick="openCustomOrder('Telegram Premium (Sovg\'a - 3 oy)', '185,000 so\'m')" class="px-4 py-2.5 liquid-btn-primary text-xs font-semibold rounded-2xl flex-shrink-0">Sotib olish</button>
+                    </div>
+                    <div class="liquid-glass-card p-4 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">6 oylik Premium</h3>
+                            <p class="text-[11px] text-muted-white">Akauntga kirmasdan sovg'a (Gift)</p>
+                            <p class="text-xs font-extrabold text-white mt-1.5">250,000 so'm</p>
+                        </div>
+                        <button onclick="openCustomOrder('Telegram Premium (Sovg\'a - 6 oy)', '250,000 so\'m')" class="px-4 py-2.5 liquid-btn-primary text-xs font-semibold rounded-2xl flex-shrink-0">Sotib olish</button>
+                    </div>
+                    <div class="liquid-glass-card p-4 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">1 yillik Premium</h3>
+                            <p class="text-[11px] text-muted-white">Akauntga kirmasdan sovg'a (Gift)</p>
+                            <p class="text-xs font-extrabold text-white mt-1.5">445,000 so'm</p>
+                        </div>
+                        <button onclick="openCustomOrder('Telegram Premium (Sovg\'a - 1 yil)', '445,000 so\'m')" class="px-4 py-2.5 liquid-btn-primary text-xs font-semibold rounded-2xl flex-shrink-0">Sotib olish</button>
+                    </div>
+                </div>
+
+                <!-- Admin qo'shgan qo'shimcha xizmatlar -->
+                <div id="user-custom-services-wrapper" class="hidden space-y-2.5 pt-2">
+                    <p class="text-xs font-semibold text-soft-white px-1">✨ Qo'shimcha xizmatlar</p>
+                    <div id="user-services-list" class="space-y-2.5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ADMIN PANEL QISMI ================= -->
+        <div id="view-admin" class="hidden space-y-6">
+            <!-- PIN Kirish Oynasi -->
+            <div id="admin-login-box" class="liquid-glass p-6 text-center">
+                <div class="w-12 h-12 liquid-pill rounded-2xl mx-auto flex items-center justify-center text-xl mb-3">🔒</div>
+                <h3 class="text-base font-bold text-white mb-1">Admin Panel</h3>
+                <p class="text-xs text-muted-white mb-4">Davom etish uchun 4 xonali PIN-kodni kiriting (Standart: 2026)</p>
+                <div class="flex justify-center space-x-2 mb-4">
+                    <input type="password" id="admin-pin-input" maxlength="4" inputmode="numeric" placeholder="••••" class="w-36 text-center liquid-input rounded-2xl px-4 py-2.5 tracking-[0.5em] text-lg font-bold">
+                </div>
+                <button onclick="checkAdminPin()" class="w-full py-3 liquid-btn-primary text-xs font-semibold rounded-2xl">Kirish</button>
+            </div>
+
+            <!-- Admin Boshqaruv Paneli -->
+            <div id="admin-dashboard" class="hidden space-y-5">
+                <div class="flex justify-between items-center liquid-glass px-4 py-3 rounded-2xl">
+                    <span class="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]"></span> Boshqaruv faol
+                    </span>
+                    <button onclick="lockAdmin()" class="text-xs text-red-300 hover:text-red-200 font-semibold">Chiqish</button>
+                </div>
+
+                <!-- Admin Ichki Bo'limlari -->
+                <div class="grid grid-cols-4 gap-1 bg-black/25 p-1.5 rounded-2xl border border-white/15 backdrop-blur-md text-center text-[11px] font-semibold">
+                    <button onclick="switchAdminTab('orders')" id="adm-tab-orders" class="py-2 rounded-xl bg-white/25 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all">Buyurtma</button>
+                    <button onclick="switchAdminTab('services')" id="adm-tab-services" class="py-2 rounded-xl text-white/70 hover:text-white transition-all">Xizmatlar</button>
+                    <button onclick="switchAdminTab('requisites')" id="adm-tab-requisites" class="py-2 rounded-xl text-white/70 hover:text-white transition-all">Rekvizit</button>
+                    <button onclick="switchAdminTab('settings')" id="adm-tab-settings" class="py-2 rounded-xl text-white/70 hover:text-white transition-all">Sozlama</button>
+                </div>
+
+                <!-- 1. Buyurtmalar Tarixi -->
+                <div id="admin-content-orders" class="space-y-3">
+                    <div class="liquid-glass px-4 py-3 rounded-2xl flex items-center justify-between">
+                        <span class="text-xs font-bold text-white">So'nggi buyurtmalar</span>
+                        <button onclick="clearOrders()" class="text-[11px] text-red-300 hover:underline font-medium">Tozalash</button>
+                    </div>
+                    <div id="admin-orders-list" class="space-y-2.5"></div>
+                </div>
+
+                <!-- 2. Xizmatlar Qo'shish -->
+                <div id="admin-content-services" class="hidden space-y-4">
+                    <div class="liquid-glass p-4 space-y-3">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Yangi Xizmat Qo'shish</h3>
+                        <input type="text" id="new-srv-name" placeholder="Xizmat nomi (masalan: ChatGPT Plus)" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <input type="text" id="new-srv-desc" placeholder="Qisqacha izoh (ixtiyoriy)" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <input type="number" id="new-srv-price" placeholder="Narxi (so'mda)" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <button onclick="addNewService()" class="w-full py-3 liquid-btn-emerald text-xs font-semibold rounded-2xl">Qo'shish</button>
+                    </div>
+                    <div id="admin-services-list" class="space-y-2"></div>
+                </div>
+
+                <!-- 3. Rekvizitlar -->
+                <div id="admin-content-requisites" class="hidden space-y-4">
+                    <div class="liquid-glass p-4 space-y-3">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">To'lov Rekviziti Qo'shish</h3>
+                        <input type="text" id="req-bank" placeholder="Bank nomi (Uzcard / Humo)" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <input type="text" id="req-card" placeholder="Karta raqami (5614 ...)" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <input type="text" id="req-holder" placeholder="Karta egasi" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <button onclick="addRequisite()" class="w-full py-3 liquid-btn-emerald text-xs font-semibold rounded-2xl">Saqlash</button>
+                    </div>
+                    <div id="admin-requisites-list" class="space-y-2"></div>
+                </div>
+
+                <!-- 4. Sozlamalar -->
+                <div id="admin-content-settings" class="hidden space-y-4">
+                    <div class="liquid-glass p-4 space-y-2 text-xs">
+                        <h3 class="font-bold text-white uppercase tracking-wider">Telegram Bot Holati</h3>
+                        <p class="text-soft-white">Admin ID: <span class="font-mono font-bold text-white">8415531693</span></p>
+                        <p class="text-soft-white">API integratsiya: <span class="text-emerald-300 font-semibold">Faol (To'g'ridan-to'g'ri yuborish)</span></p>
+                    </div>
+                    <div class="liquid-glass p-4 space-y-3">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">PIN-Kodni O'zgartirish</h3>
+                        <input type="password" id="set-new-pin" maxlength="4" inputmode="numeric" placeholder="Yangi 4 xonali PIN" class="w-full liquid-input rounded-2xl px-3.5 py-2.5 text-xs">
+                        <button onclick="changeAdminPin()" class="w-full py-3 liquid-btn-primary text-xs font-semibold rounded-2xl">PIN-kodni Yangilash</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= BUYURTMA BERISH OYNASI (MODAL) ================= -->
+    <div id="order-modal" class="fixed inset-0 z-50 bg-black/55 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="liquid-modal w-full max-w-sm p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-white/20 pb-3">
+                <h3 class="text-sm font-bold text-white" id="modal-title">Buyurtmani Tasdiqlash</h3>
+                <button onclick="closeOrderModal()" class="w-7 h-7 rounded-full liquid-pill text-white flex items-center justify-center text-base font-bold leading-none">&times;</button>
+            </div>
+            
+            <div class="space-y-3 text-xs">
+                <div class="bg-black/25 p-3.5 rounded-2xl space-y-1 border border-white/15">
+                    <p class="text-muted-white">Tanlangan xizmat:</p>
+                    <p class="font-bold text-white text-sm" id="modal-item-desc">-</p>
+                    <p class="text-muted-white">To'lov summasi: <span class="text-white font-extrabold" id="modal-item-price">-</span></p>
+                </div>
+                <div>
+                    <label class="font-semibold text-soft-white">Ismingiz:</label>
+                    <input type="text" id="cust-name" placeholder="Ismingizni kiriting" class="w-full mt-1.5 liquid-input rounded-2xl px-3.5 py-2.5">
+                </div>
+                <div>
+                    <label class="font-semibold text-soft-white">Telegram Username (@username):</label>
+                    <input type="text" id="cust-username" placeholder="@username" class="w-full mt-1.5 liquid-input rounded-2xl px-3.5 py-2.5">
+                </div>
+                <!-- Nusxalanadigan Rekvizitlar -->
+                <div class="bg-black/25 border border-white/15 p-3.5 rounded-2xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <p class="font-bold text-white">To'lov Rekvizitlari:</p>
+                        <span class="text-[10px] text-muted-white">Nusxalash uchun bosing</span>
+                    </div>
+                    <div id="modal-requisites-view" class="space-y-2 text-white"></div>
+                </div>
+                <!-- Chek yuklash -->
+                <div>
+                    <label for="cust-receipt" class="block font-semibold text-soft-white mb-1.5">To'lov chekini yuklash (Skrinshot):</label>
+                    <div id="receipt-dropzone" class="w-full p-3 border border-dashed border-white/35 bg-black/20 rounded-2xl transition-all space-y-2.5">
+                        <input type="file" id="cust-receipt" accept="image/*" onchange="handleReceiptSelect(this)" class="block w-full text-xs text-white/80 cursor-pointer file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border file:border-white/40 file:text-xs file:font-semibold file:bg-white/20 file:text-white hover:file:bg-white/30">
+                        <div id="receipt-preview-box" class="hidden pt-2.5 border-t border-white/15 flex items-center justify-between gap-2 text-left">
+                            <div class="flex items-center gap-2.5 overflow-hidden">
+                                <img id="receipt-thumb" src="" alt="Chek" class="w-11 h-11 rounded-xl object-cover border border-white/30 flex-shrink-0">
+                                <div class="overflow-hidden">
+                                    <p id="receipt-filename" class="text-xs font-bold text-emerald-300 truncate">chek.jpg</p>
+                                    <p class="text-[10px] text-muted-white">Chek muvaffaqiyatli biriktirildi</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="clearReceipt()" class="px-2.5 py-1 bg-red-500/30 border border-red-400/40 text-red-200 rounded-xl text-[10px] font-semibold flex-shrink-0">O'chirish</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="submit-order-btn" onclick="submitOrder()" class="w-full py-3.5 liquid-btn-emerald font-bold rounded-2xl flex items-center justify-center gap-2">
+                    <span>Buyurtmani Botga Yuborish</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MUVAFFAQIYATLI YUBORILDI OYNASI ================= -->
+    <div id="success-modal" class="fixed inset-0 z-50 bg-black/55 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="liquid-modal w-full max-w-sm p-6 text-center space-y-4">
+            <div class="w-14 h-14 bg-emerald-400/25 text-emerald-300 rounded-full flex items-center justify-center text-2xl mx-auto border border-emerald-300/40 font-bold shadow-[0_0_20px_rgba(52,211,153,0.3)]">✓</div>
+            <div>
+                <h3 class="text-base font-extrabold text-white">Buyurtma Yuborildi!</h3>
+                <p class="text-xs text-soft-white mt-1" id="success-subtitle">Buyurtmangiz va chekingiz to'g'ridan-to'g'ri admin Telegramiga yuborildi. Iltimos adminga chekni yuboring! Admin: @azizhub</p>
+            </div>
+            <div class="bg-black/30 border border-white/20 py-3 px-4 rounded-2xl">
+                <p class="text-[10px] text-muted-white uppercase font-semibold">Buyurtma kodi</p>
+                <p class="text-lg font-mono font-extrabold text-white tracking-wider mt-0.5" id="success-code">ORD-XXXX</p>
+            </div>
+            <button onclick="closeSuccessModal()" class="w-full py-3 liquid-btn-primary text-xs font-semibold rounded-2xl">Tushunarli</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= TELEGRAM BOT SOZLAMALARI =================
+        const BOT_TOKEN = "9019057298:AAFnPuTt9n766INEs3w2VGSrvLh2ZOP3Yf8";
+        const ADMIN_CHAT_ID = "8415531693";
+        const STORAGE_SERVICES = "tg_app_services_v1";
+        const STORAGE_REQUISITES = "tg_app_requisites_v1";
+        const STORAGE_ORDERS = "tg_app_orders_v1";
+        const STORAGE_PIN = "tg_app_pin_v1";
+        
+        let currentOrderData = {};
+        let telegramUserId = "Aniqlanmagan (Brauzer)";
+
+        // Telegram WebApp SDK ni ishga tushirish va User ID ni olish
+        window.onload = function() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                    if (tg.setHeaderColor) tg.setHeaderColor('#3d352e');
+                    if (tg.setBackgroundColor) tg.setBackgroundColor('#241f1b');
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        const u = tg.initDataUnsafe.user;
+                        if (u.id) {
+                            telegramUserId = u.id; // Telegram ID shu yerda olinadi
+                        }
+                        const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ");
+                        if (fullName) document.getElementById('cust-name').value = fullName;
+                        if (u.username) document.getElementById('cust-username').value = "@" + u.username;
+                    }
+                }
+            } catch (err) {
+                console.log("WebApp SDK init:", err);
+            }
+            initDefaultData();
+            renderUserServices();
+            renderAdminServices();
+            renderAdminRequisites();
+            renderAdminOrders();
+        };
+
+        // Toast xabarnoma
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' 
+                ? 'bg-red-500/80 border-red-300/40 text-white' 
+                : (type === 'success' ? 'bg-emerald-500/80 border-emerald-300/40 text-white' : 'bg-white/25 border-white/40 text-white');
+            
+            toast.className = `${bgClass} backdrop-blur-xl border text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-xl text-center transition-all duration-300 transform translate-y-0 opacity-100`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Boshlang'ich ma'lumotlarni yuklash
+        function initDefaultData() {
+            if (!localStorage.getItem(STORAGE_PIN)) {
+                localStorage.setItem(STORAGE_PIN, "2026");
+            }
+            if (!localStorage.getItem(STORAGE_REQUISITES)) {
+                localStorage.setItem(STORAGE_REQUISITES, JSON.stringify([
+                    { id: 1, bank: "Uzcard", card: "5614 6865 0712 1112", holder: "tojiboev azizbek" },
+                    { id: 2, bank: "Humo", card: "9860 1966 1905 8718", holder: "tojiboev azizbek" }
+                ]));
+            }
+            if (!localStorage.getItem(STORAGE_SERVICES)) {
+                localStorage.setItem(STORAGE_SERVICES, JSON.stringify([]));
+            }
+            if (!localStorage.getItem(STORAGE_ORDERS)) {
+                localStorage.setItem(STORAGE_ORDERS, JSON.stringify([]));
+            }
+        }
+
+        // Sahifalar (Mijoz / Admin) almashinuvi
+        function switchTab(tab) {
+            document.getElementById('view-user').classList.toggle('hidden', tab !== 'user');
+            document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
+            document.getElementById('nav-user').className = tab === 'user' 
+                ? 'px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/25 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all' 
+                : 'px-3.5 py-1.5 rounded-xl text-xs font-medium text-white/70 hover:text-white transition-all';
+            document.getElementById('nav-admin').className = tab === 'admin' 
+                ? 'px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/25 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all' 
+                : 'px-3.5 py-1.5 rounded-xl text-xs font-medium text-white/70 hover:text-white transition-all';
+        }
+
+        function switchAdminTab(tab) {
+            ['orders', 'services', 'requisites', 'settings'].forEach(t => {
+                document.getElementById(`admin-content-${t}`).classList.toggle('hidden', t !== tab);
+                document.getElementById(`adm-tab-${t}`).className = t === tab 
+                    ? 'py-2 rounded-xl bg-white/25 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all' 
+                    : 'py-2 rounded-xl text-white/70 hover:text-white transition-all';
+            });
+        }
+
+        // Stars Kalkulyatori
+        function setStarsPreset(amount) {
+            document.getElementById('calc-stars').value = amount;
+            calculateStars();
+        }
+
+        function calculateStars() {
+            let stars = parseInt(document.getElementById('calc-stars').value) || 0;
+            if (stars < 50) stars = 50;
+            const total = stars * 240;
+            document.getElementById('calc-total').innerText = total.toLocaleString('en-US') + " so'm";
+        }
+
+        function openStarsOrder() {
+            let stars = parseInt(document.getElementById('calc-stars').value) || 50;
+            if (stars < 50) {
+                stars = 50;
+                document.getElementById('calc-stars').value = 50;
+                calculateStars();
+            }
+            openCustomOrder(`${stars} Telegram Stars`, (stars * 240).toLocaleString('en-US') + " so'm");
+        }
+
+        // Karta raqamini nusxalash
+        function copyCardNumber(cardText) {
+            const cleanNumber = cardText.replace(/\s+/g, '');
+            const tempInput = document.createElement("input");
+            tempInput.value = cleanNumber;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            showToast(`Karta raqami nusxalandi: ${cardText}`, "success");
+        }
+
+        // Buyurtma oynasini ochish
+        function openCustomOrder(desc, price) {
+            currentOrderData = { desc, price };
+            document.getElementById('modal-item-desc').innerText = desc;
+            document.getElementById('modal-item-price').innerText = price;
+            
+            const reqs = JSON.parse(localStorage.getItem(STORAGE_REQUISITES)) || [];
+            let reqHtml = "";
+            if (reqs.length === 0) {
+                reqHtml = `<p class="text-xs text-amber-300">Rekvizitlar qo'shilmagan.</p>`;
+            } else {
+                reqs.forEach(r => {
+                    reqHtml += `
+                    <div onclick="copyCardNumber('${r.card}')" class="bg-white/10 p-2.5 rounded-2xl border border-white/20 flex items-center justify-between cursor-pointer hover:bg-white/20 active:scale-[0.99] transition-all">
+                        <div>
+                            <p class="text-[11px] font-bold text-white">${r.bank} <span class="font-normal text-muted-white">(${r.holder})</span></p>
+                            <p class="font-mono text-xs font-bold text-white mt-0.5">${r.card}</p>
+                        </div>
+                        <span class="text-[10px] font-semibold liquid-pill text-white px-2.5 py-1 rounded-xl">Nusxa</span>
+                    </div>`;
+                });
+            }
+            document.getElementById('modal-requisites-view').innerHTML = reqHtml;
+            document.getElementById('order-modal').classList.remove('hidden');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').classList.add('hidden');
+        }
+
+        // Chek rasmi tanlanganda ko'rsatish
+        function handleReceiptSelect(input) {
+            const file = input.files && input.files[0];
+            const previewBox = document.getElementById('receipt-preview-box');
+            const dropzone = document.getElementById('receipt-dropzone');
+            if (!file) {
+                previewBox.classList.add('hidden');
+                dropzone.classList.remove('border-emerald-400/70', 'bg-emerald-500/15');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showToast("Rasm hajmi 10MB dan kichik bo'lishi kerak!", "error");
+                input.value = "";
+                return;
+            }
+            document.getElementById('receipt-filename').innerText = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('receipt-thumb').src = e.target.result;
+                previewBox.classList.remove('hidden');
+                dropzone.classList.add('border-emerald-400/70', 'bg-emerald-500/15');
+                showToast("Chek rasmi yuklandi!", "success");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearReceipt() {
+            const input = document.getElementById('cust-receipt');
+            input.value = "";
+            handleReceiptSelect(input);
+        }
+
+        // Buyurtmani Telegram Bot API orqali yuborish (User ID bilan birga)
+        async function submitOrder() {
+            const name = document.getElementById('cust-name').value.trim();
+            const username = document.getElementById('cust-username').value.trim();
+            const receiptInput = document.getElementById('cust-receipt');
+            const receiptFile = receiptInput.files[0];
+
+            if (!name || !username) {
+                showToast("Iltimos, ismingiz va Telegram username'ingizni kiriting!", "error");
+                return;
+            }
+
+            const btn = document.getElementById('submit-order-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> Yuborilmoqda...`;
+
+            const code = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+            const cleanUsername = "@" + username.replace(/^@+/, '');
+            
+            // Adminga yuboriladigan xabarga User ID ham qo'shildi
+            const captionText = `📦 YANGI BUYURTMA!\n\n🆔 Kod: ${code}\n👤 Mijoz: ${name}\n🔗 Username: ${cleanUsername}\n🆔 User ID: <code>${telegramUserId}</code>\n💎 Xizmat: ${currentOrderData.desc}\n💰 Summa: ${currentOrderData.price}\n⏰ Vaqt: ${new Date().toLocaleString('uz-UZ')}`;
+
+            try {
+                let response;
+                if (receiptFile) {
+                    const formData = new FormData();
+                    formData.append("chat_id", ADMIN_CHAT_ID);
+                    formData.append("photo", receiptFile);
+                    formData.append("caption", captionText);
+                    formData.append("parse_mode", "HTML");
+                    response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                        method: "POST",
+                        body: formData
+                    });
+                } else {
+                    response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            chat_id: ADMIN_CHAT_ID,
+                            text: captionText + "\n⚠️ Chek rasmi ilova qilinmadi.",
+                            parse_mode: "HTML"
+                        })
+                    });
+                }
+                const result = await response.json();
+                
+                saveOrderLocal({
+                    code,
+                    name,
+                    username: cleanUsername,
+                    userId: telegramUserId,
+                    item: currentOrderData.desc,
+                    price: currentOrderData.price,
+                    hasReceipt: Boolean(receiptFile),
+                    sentToBot: result.ok,
+                    date: new Date().toLocaleString('uz-UZ')
+                });
+
+                closeOrderModal();
+                document.getElementById('success-code').innerText = code;
+                if (result.ok) {
+                    document.getElementById('success-subtitle').innerText = "Buyurtmangiz va chekingiz to'g'ridan-to'g'ri admin Telegramiga yetkazildi!";
+                } else {
+                    document.getElementById('success-subtitle').innerText = "Buyurtma qabul qilindi. Admin botga /start bosganiga ishonch hosil qiling.";
+                }
+                document.getElementById('success-modal').classList.remove('hidden');
+            } catch (error) {
+                console.error("Telegram API xatoligi:", error);
+                showToast("Tarmoq xatoligi! Qaytadan urinib ko'ring.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+            }
+        }
+
+        function saveOrderLocal(orderObj) {
+            const orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS)) || [];
+            orders.unshift(orderObj);
+            localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+            renderAdminOrders();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+            const receiptInput = document.getElementById('cust-receipt');
+            receiptInput.value = "";
+            handleReceiptSelect(receiptInput);
+        }
+
+        // ================= ADMIN FUNKSIYALARI =================
+        function checkAdminPin() {
+            const entered = document.getElementById('admin-pin-input').value;
+            const correctPin = localStorage.getItem(STORAGE_PIN) || "2026";
+            if (entered === correctPin) {
+                document.getElementById('admin-login-box').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('admin-pin-input').value = "";
+                showToast("Admin panelga xush kelibsiz!", "success");
+            } else {
+                showToast("PIN-kod noto'g'ri!", "error");
+            }
+        }
+
+        function lockAdmin() {
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-login-box').classList.remove('hidden');
+        }
+
+        function renderAdminOrders() {
+            const orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS)) || [];
+            const container = document.getElementById('admin-orders-list');
+            if (orders.length === 0) {
+                container.innerHTML = `<p class="text-xs text-muted-white text-center py-6">Hozircha buyurtmalar yo'q.</p>`;
+                return;
+            }
+            let html = "";
+            orders.forEach(o => {
+                html += `
+                <div class="liquid-glass-card p-3.5 space-y-1.5 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono font-bold text-white">${o.code}</span>
+                        <span class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${o.sentToBot ? 'bg-emerald-500/30 border border-emerald-300/40 text-emerald-200' : 'bg-amber-500/30 border border-amber-300/40 text-amber-200'}">
+                            ${o.sentToBot ? 'Botga yuborildi ✓' : 'Saqlandi'}
+                        </span>
+                    </div>
+                    <p class="text-soft-white"><strong class="text-white">Mijoz:</strong> ${o.name} (${o.username})</p>
+                    <p class="text-soft-white"><strong class="text-white">Telegram ID:</strong> <span class="font-mono text-emerald-300">${o.userId}</span></p>
+                    <p class="text-soft-white"><strong class="text-white">Xizmat:</strong> ${o.item} — <span class="font-bold text-white">${o.price}</span></p>
+                    <p class="text-[10px] text-muted-white">${o.date} ${o.hasReceipt ? '• 🖼️ Chek biriktirilgan' : ''}</p>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function clearOrders() {
+            localStorage.setItem(STORAGE_ORDERS, JSON.stringify([]));
+            renderAdminOrders();
+            showToast("Buyurtmalar tarixi tozalandi");
+        }
+
+        function addNewService() {
+            const name = document.getElementById('new-srv-name').value.trim();
+            const desc = document.getElementById('new-srv-desc').value.trim();
+            const price = parseFloat(document.getElementById('new-srv-price').value) || 0;
+            if (!name || !price) {
+                showToast("Xizmat nomi va narxini kiriting!", "error");
+                return;
+            }
+            const services = JSON.parse(localStorage.getItem(STORAGE_SERVICES)) || [];
+            services.push({ id: Date.now(), name, desc, price: price.toLocaleString('en-US') + " so'm" });
+            localStorage.setItem(STORAGE_SERVICES, JSON.stringify(services));
+            
+            document.getElementById('new-srv-name').value = "";
+            document.getElementById('new-srv-desc').value = "";
+            document.getElementById('new-srv-price').value = "";
+            renderAdminServices();
+            renderUserServices();
+            showToast("Yangi xizmat qo'shildi!", "success");
+        }
+
+        function renderAdminServices() {
+            const services = JSON.parse(localStorage.getItem(STORAGE_SERVICES)) || [];
+            let html = "";
+            services.forEach(s => {
+                html += `
+                <div class="liquid-glass-card p-3.5 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="text-xs font-bold text-white">${s.name}</p>
+                        <p class="text-[11px] text-muted-white">${s.price}</p>
+                    </div>
+                    <button onclick="deleteService(${s.id})" class="px-3 py-1.5 bg-red-500/30 hover:bg-red-500/45 border border-red-300/40 text-red-100 font-semibold rounded-xl text-xs">O'chirish</button>
+                </div>`;
+            });
+            document.getElementById('admin-services-list').innerHTML = html || '<p class="text-xs text-muted-white text-center py-2">Qo\'shimcha xizmatlar yo\'q</p>';
+        }
+
+        function deleteService(id) {
+            let services = JSON.parse(localStorage.getItem(STORAGE_SERVICES)) || [];
+            services = services.filter(s => s.id !== id);
+            localStorage.setItem(STORAGE_SERVICES, JSON.stringify(services));
+            renderAdminServices();
+            renderUserServices();
+            showToast("Xizmat o'chirildi");
+        }
+
+        function renderUserServices() {
+            const services = JSON.parse(localStorage.getItem(STORAGE_SERVICES)) || [];
+            const wrapper = document.getElementById('user-custom-services-wrapper');
+            const list = document.getElementById('user-services-list');
+            
+            if (services.length === 0) {
+                wrapper.classList.add('hidden');
+                list.innerHTML = "";
+                return;
+            }
+            
+            wrapper.classList.remove('hidden');
+            let html = "";
+            services.forEach(s => {
+                html += `
+                <div class="liquid-glass-card p-4 flex items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">${s.name}</h3>
+                        ${s.desc ? `<p class="text-[11px] text-muted-white">${s.desc}</p>` : ''}
+                        <p class="text-xs font-extrabold text-white mt-1.5">${s.price}</p>
+                    </div>
+                    <button onclick="openServiceById(${s.id})" class="px-4 py-2.5 liquid-btn-primary text-xs font-semibold rounded-2xl flex-shrink-0">Sotib olish</button>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function openServiceById(id) {
+            const services = JSON.parse(localStorage.getItem(STORAGE_SERVICES)) || [];
+            const srv = services.find(s => s.id === id);
+            if (srv) openCustomOrder(srv.name, srv.price);
+        }
+
+        function addRequisite() {
+            const bank = document.getElementById('req-bank').value.trim();
+            const card = document.getElementById('req-card').value.trim();
+            const holder = document.getElementById('req-holder').value.trim();
+            if (!bank || !card) {
+                showToast("Bank nomi va karta raqamini kiriting!", "error");
+                return;
+            }
+            const reqs = JSON.parse(localStorage.getItem(STORAGE_REQUISITES)) || [];
+            reqs.push({ id: Date.now(), bank, card, holder });
+            localStorage.setItem(STORAGE_REQUISITES, JSON.stringify(reqs));
+            
+            document.getElementById('req-bank').value = "";
+            document.getElementById('req-card').value = "";
+            document.getElementById('req-holder').value = "";
+            renderAdminRequisites();
+            showToast("Rekvizit qo'shildi!", "success");
+        }
+
+        function renderAdminRequisites() {
+            const reqs = JSON.parse(localStorage.getItem(STORAGE_REQUISITES)) || [];
+            let html = "";
+            reqs.forEach(r => {
+                html += `
+                <div class="liquid-glass-card p-3.5 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="text-xs font-bold text-white">${r.bank}: ${r.card}</p>
+                        <p class="text-[11px] text-muted-white">${r.holder}</p>
+                    </div>
+                    <button onclick="deleteRequisite(${r.id})" class="px-3 py-1.5 bg-red-500/30 hover:bg-red-500/45 border border-red-300/40 text-red-100 font-semibold rounded-xl text-xs">O'chirish</button>
+                </div>`;
+            });
+            document.getElementById('admin-requisites-list').innerHTML = html || '<p class="text-xs text-muted-white text-center py-2">Rekvizitlar yo\'q</p>';
+        }
+
+        function deleteRequisite(id) {
+            let reqs = JSON.parse(localStorage.getItem(STORAGE_REQUISITES)) || [];
+            reqs = reqs.filter(r => r.id !== id);
+            localStorage.setItem(STORAGE_REQUISITES, JSON.stringify(reqs));
+            renderAdminRequisites();
+            showToast("Rekvizit o'chirildi");
+        }
+
+        function changeAdminPin() {
+            const newPIN = document.getElementById('set-new-pin').value.trim();
+            if (newPIN.length === 4 && /^\d+$/.test(newPIN)) {
+                localStorage.setItem(STORAGE_PIN, newPIN);
+                showToast("PIN-kod muvaffaqiyatli o'zgartirildi!", "success");
+                document.getElementById('set-new-pin').value = "";
+            } else {
+                showToast("PIN-kod 4 ta raqamdan iborat bo'lishi kerak!", "error");
+            }
+        }
+    </script>
+</body>
+</html>
